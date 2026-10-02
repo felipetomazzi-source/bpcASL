@@ -1,7 +1,11 @@
 ﻿# Implementation Status
 
 One row per requirement. Status is `Planned` unless repository content demonstrably
-satisfies the requirement. No implementation exists yet, so every requirement is `Planned`.
+satisfies the requirement. Statuses advance as implementation and validation
+progress; `Review required` means source exists but SAP activation and ABAP Unit
+execution are still pending. Evidence labels distinguish: Implemented locally,
+Locally inspected, Test executed locally, SAP validation pending, SAP activation
+pending, and ABAP Unit pending.
 
 | ID | Capability | Spec section | Phase | Status | Objects/files | Tests/evidence | Issue/PR | Notes |
 |---|---|---:|---:|---|---|---|---|---|
@@ -49,7 +53,7 @@ satisfies the requirement. No implementation exists yet, so every requirement is
 | ASL-PROD-042 | No script can invoke an unregistered ABAP class, program, SQL statement, or physical BW table. | §37.14 | - | Planned |  |  |  |  |
 | ASL-PROD-043 | The solution runs on ABAP 7.52 and SAPUI5 1.52. | §37.15 | - | Planned |  |  |  |  |
 | ASL-PROD-044 | The solution includes tests covering parser/semantic, execution, SAP integration, and reference scenarios. | §36 | - | Planned |  |  |  |  |
-| ASL-LANG-001 | Keywords are case-insensitive; quoted values preserve case; identifiers are case-insensitive and displayed as authored. | §8 | 0 | Planned |  |  |  |  |
+| ASL-LANG-001 | Keywords are case-insensitive; quoted values preserve case; identifiers are case-insensitive and displayed as authored. | §8 | 0 | Planned |  |  |  | Token value object (original lexeme + normalized value) added as foundation; lexer pending. |
 | ASL-LANG-002 | Statements end with a semicolon. | §8 | 0 | Planned |  |  |  |  |
 | ASL-LANG-003 | Comments use `//` for single line and `/* ... */` for block. | §8 | 0 | Planned |  |  |  |  |
 | ASL-LANG-004 | The syntax shown in the specification is normative at the semantic level; minor grammar refinements are allowed only if they improve error recovery or remove ambiguity and examples can be migrated mechanically. | §8 | 0 | Planned |  |  |  |  |
@@ -206,7 +210,7 @@ satisfies the requirement. No implementation exists yet, so every requirement is
 | ASL-API-003 | State-changing operations require a CSRF token. | §29 | 1 | Planned |  |  |  |  |
 | ASL-API-004 | Optimistic concurrency uses a version/hash or ETag; conflicting edits receive HTTP 409 and never overwrite a newer draft. | §29 | 1 | Planned |  |  |  |  |
 | ASL-API-005 | Errors use a consistent envelope with `code`, `message`, `correlationId`, and `diagnostics` (severity, line, column, length, code, message). | §29 | 1 | Planned |  |  |  |  |
-| ASL-OPS-001 | Diagnostics have severity `INFO`, `WARNING`, or `ERROR`, a stable code, source location when applicable, stage/partition, and correlation ID. | §31 | 2 | Planned |  |  |  |  |
+| ASL-OPS-001 | Diagnostics have severity `INFO`, `WARNING`, or `ERROR`, a stable code, source location when applicable, stage/partition, and correlation ID. | §31 | 2 | Review required | ZCL_BPC_ASL_SEVERITY, ZCL_BPC_ASL_DIAG_CODE, ZCL_BPC_ASL_DIAG, ZCL_BPC_ASL_SRC_POS, ZCL_BPC_ASL_SRC_RANGE | Implemented locally (partial); ABAP Unit pending; SAP validation pending |  | Severity enum, stable code convention, and optional source location delivered (Phase 0 Slice 1); stage/partition and correlation ID remain Phase 2 runtime concerns. |
 | ASL-OPS-002 | Errors are grouped as syntax/type, metadata binding, authorization/work-status, scope/cardinality, resource-limit, source/extension, lock conflicts, standard BPC/BW API, and infrastructure failures. | §31 | 2 | Planned |  |  |  |  |
 | ASL-OPS-003 | Every run records script ID/version/hash, environment/model, initiating user and timestamps, typed parameter values with masking, metadata and plan hashes, resolved member counts and regions, stage/partition timings, row counts, new/changed/unchanged/stale counts, write strategy/batches/commits/retries, assertions/metrics/warnings/errors, and cancellation/restart events. | §33 | 2 | Planned |  |  |  |  |
 | ASL-OPS-004 | Application logs use a correlation ID shared between HTTP requests, background jobs, and BPC/BW adapter messages; operational summaries are available in the UI and suitable for SAP application logging integration. | §33 | 2 | Planned |  |  |  |  |
@@ -228,9 +232,9 @@ satisfies the requirement. No implementation exists yet, so every requirement is
 
 | Status | Count |
 |---|---:|
-| Planned | 218 |
+| Planned | 217 |
 | In progress | 0 |
-| Review required | 0 |
+| Review required | 1 |
 | Blocked | 0 |
 | Done | 0 |
 | Implemented but not tested | 0 |

@@ -1,0 +1,71 @@
+CLASS ltcl_src_range DEFINITION FINAL FOR TESTING
+  DURATION SHORT
+  RISK LEVEL HARMLESS.
+
+  PRIVATE SECTION.
+    METHODS create_valid FOR TESTING.
+    METHODS zero_width FOR TESTING.
+    METHODS end_before_start_rejected FOR TESTING.
+    METHODS start_bad_line_rejected FOR TESTING.
+
+ENDCLASS.
+
+CLASS ltcl_src_range IMPLEMENTATION.
+
+  METHOD create_valid.
+    DATA lo_range TYPE REF TO zcl_bpc_asl_src_range.
+
+    lo_range = zcl_bpc_asl_src_range=>create( iv_start_line   = 2
+                                              iv_start_column = 3
+                                              iv_end_line     = 2
+                                              iv_end_column   = 9 ).
+
+    cl_abap_unit_assert=>assert_equals( act = lo_range->get_start_line( )
+                                        exp = 2 ).
+    cl_abap_unit_assert=>assert_equals( act = lo_range->get_start_column( )
+                                        exp = 3 ).
+    cl_abap_unit_assert=>assert_equals( act = lo_range->get_end_line( )
+                                        exp = 2 ).
+    cl_abap_unit_assert=>assert_equals( act = lo_range->get_end_column( )
+                                        exp = 9 ).
+    cl_abap_unit_assert=>assert_equals( act = lo_range->is_zero_width( )
+                                        exp = abap_false ).
+  ENDMETHOD.
+
+  METHOD zero_width.
+    DATA lo_range TYPE REF TO zcl_bpc_asl_src_range.
+
+    lo_range = zcl_bpc_asl_src_range=>create( iv_start_line   = 1
+                                              iv_start_column = 1
+                                              iv_end_line     = 1
+                                              iv_end_column   = 1 ).
+
+    cl_abap_unit_assert=>assert_equals( act = lo_range->is_zero_width( )
+                                        exp = abap_true ).
+  ENDMETHOD.
+
+  METHOD end_before_start_rejected.
+    TRY.
+        zcl_bpc_asl_src_range=>create( iv_start_line   = 2
+                                       iv_start_column = 5
+                                       iv_end_line     = 2
+                                       iv_end_column   = 1 ).
+        cl_abap_unit_assert=>fail( msg = 'Expected CX_PARAMETER_INVALID_RANGE' ).
+      CATCH cx_parameter_invalid_range.
+        " Expected: end precedes start on the same line.
+    ENDTRY.
+  ENDMETHOD.
+
+  METHOD start_bad_line_rejected.
+    TRY.
+        zcl_bpc_asl_src_range=>create( iv_start_line   = 0
+                                       iv_start_column = 1
+                                       iv_end_line     = 1
+                                       iv_end_column   = 1 ).
+        cl_abap_unit_assert=>fail( msg = 'Expected CX_PARAMETER_INVALID_RANGE' ).
+      CATCH cx_parameter_invalid_range.
+        " Expected: invalid start line propagates from SRC_POS.
+    ENDTRY.
+  ENDMETHOD.
+
+ENDCLASS.

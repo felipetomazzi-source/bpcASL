@@ -187,6 +187,22 @@ these decisions is yet implemented or validated on the target system.
 - Decision: Large-volume replacement supports `KEY_DELTA`, `CHUNKED_WRITEBACK`, and `REGISTERED_BULK_REPLACE`; forced bulk mode requires an authorized run profile; bulk adapters never delete directly from generated fact tables.
 - Consequences: Automatic selection is estimate-driven; bulk provider type/platform support must be validated before production writes.
 
+## ADR-021 — Diagnostic code convention
+
+- Date: 2026-10-02
+- Status: Accepted
+- Related requirements: ASL-OPS-001, ASL-API-005
+- Context: §31 requires diagnostics to carry a stable code but does not define a
+  format or namespace.
+- Decision: Diagnostic codes are stable `UPPER_SNAKE_CASE` strings. The first
+  segment is a category prefix that reserves a namespace per compiler/runtime
+  layer: `LEX_` (lexical), `SYN_` (syntax), `SEM_` (semantic/binding/type),
+  `RUN_` (runtime/execution), and `SYS_` (adapter/infrastructure). Codes start
+  with a letter, are 2–60 characters, and contain at least one underscore. New
+  codes may be added; existing codes are never renamed or repurposed.
+- Consequences: The lexer, parser, and runtime share one code namespace; shape
+  validation is centralized in `ZCL_BPC_ASL_DIAG_CODE`.
+
 ## Open Questions
 
 Recorded from SPECIFICATION.md §40 plus items surfaced during extraction. These

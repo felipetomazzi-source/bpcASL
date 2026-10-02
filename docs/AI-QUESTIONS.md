@@ -350,3 +350,45 @@ surfaced during extraction.
 
 - Work blocked:
   Creating production ABAP/BSP/ICF objects and the authorization object.
+
+## Q-012 — Source position indexing and range end-exclusivity
+
+- Status: Open
+- Raised by: DeepSeek
+- Date: 2026-10-02
+- Related requirements: ASL-OPS-001, ASL-UI-003, ASL-API-005, ASL-LANG-001
+- Blocking: Yes
+- Context:
+  SPECIFICATION.md §29 shows a diagnostic envelope with 1-based-looking
+  `line`/`column` and a `length`, but it never states formally whether line and
+  column are 0-based or 1-based, nor whether a source range's end position is
+  inclusive or exclusive. Phase 0 Slice 1 introduces the source-position and
+  source-range value objects that the lexer, parser, and formatter will all rely
+  on, so these semantics must be agreed before those later slices finalize.
+
+- Question:
+  Are line/column positions 1-based or 0-based, and is a source range's end
+  position inclusive or exclusive?
+
+- Options considered:
+  1. 1-based line/column with a half-open `[start, end)` range.
+  2. 0-based line/column with a half-open range.
+  3. 1-based with an end-inclusive range.
+  4. Start position plus character length (no end position), mirroring §29's
+     `length` field directly.
+
+- DeepSeek recommendation:
+  Use 1-based line/column with a half-open `[start, end)` range. This matches
+  the §29 example (`line: 18, column: 24`) and the convention used by editors
+  and the Language Server Protocol; the single-line `length` in §29 is derived
+  at serialization time as `end_column - start_column`.
+
+- Work that can continue:
+  All value-object work in this slice. The lexer and parser can be scaffolded
+  against the recommended convention and adjusted trivially if the answer
+  differs.
+
+- Work blocked:
+  Finalizing the position base and end-exclusivity contract across the lexer,
+  parser, and formatter, and agreeing how `length` is derived for the §29
+  envelope.
