@@ -206,6 +206,40 @@ these decisions is yet implemented or validated on the target system.
   category ownership is enforced by convention and review rather than by
   validation.
 
+## ADR-022 — Source coordinate contract
+
+- Date: 2026-10-02
+- Status: Accepted
+- Related requirements: ASL-OPS-001, ASL-UI-003, ASL-API-005, ASL-LANG-001
+- Context: Q-012 asked how source positions and ranges must be computed. The
+  user approved the convention below; it is authoritative for the lexer, parser,
+  formatter, editor, and HTTP serializer.
+- Decision:
+  1. Lines and columns are 1-based (the first character of the first line is
+     `(1,1)`).
+  2. Source ranges are half-open `[start, end)`; the start is included and the
+     end is excluded.
+  3. Columns count UTF-16 code units.
+  4. Tabs count as one code unit (no tab-stop expansion).
+  5. CRLF and CR are normalized to LF before positions are calculated.
+  6. Supplementary characters count as two code units (a surrogate pair);
+     combining marks count separately.
+- Consequences: `ZCL_BPC_ASL_SRC_POS` and `ZCL_BPC_ASL_SRC_RANGE` store
+  coordinates as produced; the producer (lexer) applies these counting rules.
+  Single-line `length` in §29's envelope is `end_column - start_column`.
+- Contract examples:
+
+  | Case | Positions | Meaning |
+  | --- | --- | --- |
+  | First character | `(1,1)` | 1-based origin |
+  | One-character range | `[1,1) → [1,2)` | half-open; spans one code unit |
+  | Insertion / EOF | `[n,c) → [n,c)` | zero-width; start = end |
+  | Multiline range | `[2,5) → [4,3)` | line-major; end line ≥ start line |
+  | Tab | `+1` column | one code unit; no expansion |
+  | Line ending | CRLF/CR → LF | no CR column; no extra line |
+  | Combining mark | `e` + combining acute = 2 columns | marks count separately |
+  | Supplementary char | astral `U+1F600` = 2 columns | surrogate pair = 2 code units |
+
 ## Open Questions
 
 Recorded from SPECIFICATION.md §40 plus items surfaced during extraction. These

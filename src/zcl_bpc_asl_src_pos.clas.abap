@@ -1,14 +1,13 @@
 " Source position in an ASL script (Phase 0 / Slice 1).
 "
-" Lines and columns are 1-based by the recommended convention: the first
-" character of the first line is position (1,1). SPECIFICATION.md section 29
-" shows 1-based-looking line/column values but does not formally state the base.
+" Lines and columns are 1-based: the first character of the first line is
+" position (1,1). Columns count UTF-16 code units; a tab counts as one code
+" unit; a supplementary character counts as two code units; combining marks
+" count separately. CRLF/CR are normalized to LF before positions are computed.
 "
-" The coordinate contract is not yet accepted. The exact base (1 vs 0), the
-" column counting unit, tab handling, line-ending (LF/CRLF) handling, and the
-" supplementary-character policy are recorded as open questions (Q-012) and are
-" provisional here. This class is the single point that would change if the
-" answer differs.
+" The coordinate contract is recorded in DECISIONS.md ADR-022 (AI-QUESTIONS.md
+" Q-012). This class stores coordinates as given by the producer; the producer
+" (lexer) applies the ADR-022 counting rules.
 "
 " Immutable by contract: construction is private, values are set once, and only
 " read access is exposed.

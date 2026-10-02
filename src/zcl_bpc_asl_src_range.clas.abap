@@ -4,9 +4,9 @@
 " and the end position is excluded. A zero-width range has start = end.
 " The start/end ordering is compared by line first, then column.
 "
-" The coordinate contract is not yet accepted. End-exclusivity and the column
-" counting unit are recorded as open questions (Q-012) and are provisional here.
-" This class is the single point that would change if the answer differs.
+" The half-open convention is recorded in DECISIONS.md ADR-022 (AI-QUESTIONS.md
+" Q-012). A one-character range spans [c, c+1); an insertion point or end-of-file
+" is a zero-width range where start = end.
 "
 " Immutable by contract: construction is private and only read access is
 " exposed.

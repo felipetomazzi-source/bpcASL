@@ -4,6 +4,7 @@ CLASS ltcl_src_range DEFINITION FINAL FOR TESTING
 
   PRIVATE SECTION.
     METHODS create_valid FOR TESTING.
+    METHODS one_character_range FOR TESTING.
     METHODS zero_width FOR TESTING.
     METHODS end_before_start_rejected FOR TESTING.
     METHODS start_bad_line_rejected FOR TESTING.
@@ -34,6 +35,27 @@ CLASS ltcl_src_range IMPLEMENTATION.
                                         exp = 2 ).
     cl_abap_unit_assert=>assert_equals( act = lo_range->get_end_column( )
                                         exp = 9 ).
+    cl_abap_unit_assert=>assert_equals( act = lo_range->is_zero_width( )
+                                        exp = abap_false ).
+  ENDMETHOD.
+
+  METHOD one_character_range.
+    DATA lo_range TYPE REF TO zcl_bpc_asl_src_range.
+
+    " ADR-022: a single code unit spans the half-open range [1,1) to [1,2).
+    lo_range = zcl_bpc_asl_src_range=>create( iv_start_line   = 1
+                                              iv_start_column = 1
+                                              iv_end_line     = 1
+                                              iv_end_column   = 2 ).
+
+    cl_abap_unit_assert=>assert_equals( act = lo_range->get_start_line( )
+                                        exp = 1 ).
+    cl_abap_unit_assert=>assert_equals( act = lo_range->get_start_column( )
+                                        exp = 1 ).
+    cl_abap_unit_assert=>assert_equals( act = lo_range->get_end_line( )
+                                        exp = 1 ).
+    cl_abap_unit_assert=>assert_equals( act = lo_range->get_end_column( )
+                                        exp = 2 ).
     cl_abap_unit_assert=>assert_equals( act = lo_range->is_zero_width( )
                                         exp = abap_false ).
   ENDMETHOD.

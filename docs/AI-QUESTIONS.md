@@ -353,11 +353,11 @@ surfaced during extraction.
 
 ## Q-012 — Source coordinate contract (base, end, column unit, tabs, line endings, Unicode)
 
-- Status: Open
+- Status: Resolved
 - Raised by: DeepSeek
 - Date: 2026-10-02
 - Related requirements: ASL-OPS-001, ASL-UI-003, ASL-API-005, ASL-LANG-001
-- Blocking: Yes
+- Blocking: No
 - Context:
   SPECIFICATION.md §29 shows a diagnostic envelope with 1-based-looking
   `line`/`column` and a `length`, but it does not formally state whether line
@@ -405,3 +405,13 @@ surfaced during extraction.
   Finalizing the coordinate contract across the lexer, parser, formatter,
   editor, and HTTP serializer; agreeing how `length` is derived for §29; any
   behavior that depends on tab/CRLF/Unicode column semantics.
+
+- Resolution (user-approved, 2026-10-02):
+  1. Lines and columns are 1-based.
+  2. Source ranges are half-open `[start, end)`.
+  3. Columns count UTF-16 code units.
+  4. Tabs count as one code unit.
+  5. Normalize CRLF and CR to LF before calculating positions.
+  6. Supplementary characters count as two code units; combining marks count
+     separately.
+  Recorded as ADR-022 in DECISIONS.md.
