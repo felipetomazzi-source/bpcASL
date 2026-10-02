@@ -23,7 +23,7 @@
 
 **APPROVED**
 
-Approved for the local Phase 0 Slice 1 source/documentation review. All five findings are resolved; no open BLOCKER, HIGH, MEDIUM or LOW finding remains. SAP validation is still required before claiming an activated, executable implementation. The complete diff from main reveals no additional regression or excluded-scope implementation.
+Approved for the local Phase 0 Slice 1 source/documentation review. The five original findings are resolved; no open BLOCKER, HIGH or MEDIUM finding remains. Follow-up REVIEW-006 is LOW and does not block the local source approval. SAP validation is still required before claiming an activated, executable implementation. The complete diff from main reveals no additional regression or excluded-scope implementation.
 
 ## Findings
 
@@ -146,3 +146,29 @@ BPC integration tests belong to later adapter/runtime slices.
 DeepSeek has corrected all identified local defects. Retain the partial implementation tracking and pending SAP labels. Arrange separately authorized 7.52 import, syntax, activation and ABAP Unit validation before claiming executable completion. No further Slice 1 source correction is required by this review; future work must continue under its own assigned scope.
 
 Only `docs/AI-REVIEW.md` is updated and committed locally. Pre-existing untracked files remain untouched. No implementation edit, SAP change, branch switch, push or merge is performed. The review commit hash is reported separately.
+
+## Follow-up review — OpenCode assertion and serialization fixes
+
+- Date: 2026-10-02
+- Reviewed HEAD: `5de1309`; additional commits `26ae9cb` and `5de1309` above previous review commit `2db197e`.
+- Verdict: **APPROVED** for these local corrections, with one LOW helper finding. Successful SAP execution remains unverified.
+- User-provided SAP evidence: screenshot shows failures in PRESERVES_TRAILING_SPACE and PRESERVES_WHITESPACE_LEXEME. This is evidence that the previous suite did not pass, not evidence of a complete 45-test result or of the latest fixes passing. The earlier source approval did not certify SAP execution.
+- Assertion correction: both final-character expectations now use the string template `| |` instead of the text-field literal `' '`. Actual and expected values now both represent strings containing one space. Content and length assertions remain intact. This corrects the identified type mismatch without changing token storage. Failure details were not supplied, so the screenshot alone does not establish that this was the only runtime cause.
+- Serialization correction: seven class metadata files now have BOMs; all 14 ABAP main/test sources have no BOM and CRLF with one final CRLF. Repository/package XML also conforms. Independent raw Git-blob inspection checked all 23 committed ABAP/XML files, validated strict UTF-8 and BOM/EOL rules, and compared normalized content with `2db197e`: only the two assertion expressions changed. Production logic and XML object metadata are otherwise unchanged.
+- Git attributes: `*.abap -text` and `*.xml -text` disable normalization, and `git check-attr` confirms these settings. Current metadata/source file coverage is appropriate; future BSP content serialization requires its own rules rather than treating every XML file as metadata.
+- Local checks actually executed: default PowerShell helper checked 23 working files with zero violations; independent Node raw-blob checks passed; `git -c core.whitespace=cr-at-eol diff --check 2db197e HEAD` passed. The CR-aware setting is necessary for deliberately stored CRLF and is not a test execution. bpcIO status remains clean.
+- No ADT operation, SAP syntax check, activation, ABAP Unit or BPC integration test was performed in this follow-up. No implementation source was edited by the reviewer.
+
+### REVIEW-006 — Repair mode leaves lone CR line endings unchanged
+
+- Severity: LOW
+- Status: Open
+- Requirements: supporting abapGit serialization tooling; ASL-PROD-023.
+- File: `tools/check-abapgit-bytes.ps1`
+- Line: 41–47 (`Convert-ToCrlf`); repair branch at 116–119.
+- Problem: The CR branch appends LF only when LF already follows CR. A lone CR is preserved. Repair mode writes the result without rerunning validation, so it can print FIXED while the file still violates its own rules.
+- Consequence: The helper cannot repair every detected line-ending violation. Current committed files are valid, so this does not block importing the reviewed correction.
+- Required correction: Convert lone CR to CRLF as well as lone LF, and validate the repaired bytes before reporting success; fail if a violation remains.
+- Verification required: Pure-function cases for CR-only and mixed line endings, plus revalidation of repaired bytes. The reviewer executed an in-memory A/CR/B case through Fix-Bytes and Get-Violations and reproduced `non-CRLF line ending`; no repository fixture or source was changed.
+
+Next action: push/pull these corrected implementation commits through the authorized workflow and rerun all 45 tests in SAP. Record actual discovery, failure and execution results before marking SAP validation complete. OpenCode may address REVIEW-006 separately; no further production-code correction is established by this follow-up.
