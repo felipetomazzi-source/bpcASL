@@ -206,7 +206,7 @@ CLASS ltcl_token IMPLEMENTATION.
       act = substring( val = lo_token->get_lexeme( )
                        off = strlen( lo_token->get_lexeme( ) ) - 1
                        len = 1 )
-      exp = ' ' ).
+      exp = | | ).
   ENDMETHOD.
 
   METHOD preserves_trailing_space.
@@ -235,7 +235,7 @@ CLASS ltcl_token IMPLEMENTATION.
       act = substring( val = lo_token->get_lexeme( )
                        off = strlen( lo_token->get_lexeme( ) ) - 1
                        len = 1 )
-      exp = ' ' ).
+      exp = | | ).
   ENDMETHOD.
 
   METHOD preserves_unicode_lexeme.
