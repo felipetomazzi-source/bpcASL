@@ -11,6 +11,8 @@ CLASS ltcl_src_range DEFINITION FINAL FOR TESTING
     METHODS end_line_later_accepted FOR TESTING.
     METHODS negative_start_column_rejected FOR TESTING.
     METHODS negative_end_line_rejected FOR TESTING.
+    METHODS zero_end_column_rejected FOR TESTING.
+    METHODS negative_end_column_rejected FOR TESTING.
 
 ENDCLASS.
 
@@ -119,6 +121,32 @@ CLASS ltcl_src_range IMPLEMENTATION.
         cl_abap_unit_assert=>fail( msg = 'Expected CX_PARAMETER_INVALID_RANGE' ).
       CATCH cx_parameter_invalid_range.
         " Expected: a negative end line propagates from SRC_POS.
+    ENDTRY.
+  ENDMETHOD.
+
+  METHOD zero_end_column_rejected.
+    " End line is later than start line, so ordering passes; the rejection
+    " isolates the invalid end column (0 violates the 1-based invariant).
+    TRY.
+        zcl_bpc_asl_src_range=>create( iv_start_line   = 1
+                                       iv_start_column = 1
+                                       iv_end_line     = 2
+                                       iv_end_column   = 0 ).
+        cl_abap_unit_assert=>fail( msg = 'Expected CX_PARAMETER_INVALID_RANGE' ).
+      CATCH cx_parameter_invalid_range.
+        " Expected: end column 0 violates the 1-based invariant.
+    ENDTRY.
+  ENDMETHOD.
+
+  METHOD negative_end_column_rejected.
+    TRY.
+        zcl_bpc_asl_src_range=>create( iv_start_line   = 1
+                                       iv_start_column = 1
+                                       iv_end_line     = 2
+                                       iv_end_column   = -1 ).
+        cl_abap_unit_assert=>fail( msg = 'Expected CX_PARAMETER_INVALID_RANGE' ).
+      CATCH cx_parameter_invalid_range.
+        " Expected: a negative end column violates the 1-based invariant.
     ENDTRY.
   ENDMETHOD.
 

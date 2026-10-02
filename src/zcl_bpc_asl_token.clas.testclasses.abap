@@ -12,6 +12,7 @@ CLASS ltcl_token DEFINITION FINAL FOR TESTING
     METHODS numeric_zero_value FOR TESTING.
     METHODS preserves_quoted_mixed_case FOR TESTING.
     METHODS preserves_whitespace_lexeme FOR TESTING.
+    METHODS preserves_trailing_space FOR TESTING.
     METHODS preserves_unicode_lexeme FOR TESTING.
     METHODS eof_token_policy FOR TESTING.
 
@@ -181,22 +182,48 @@ CLASS ltcl_token IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD preserves_whitespace_lexeme.
-    DATA lo_range TYPE REF TO zcl_bpc_asl_src_range.
-    DATA lo_token TYPE REF TO zcl_bpc_asl_token.
+    DATA lo_range  TYPE REF TO zcl_bpc_asl_src_range.
+    DATA lo_token  TYPE REF TO zcl_bpc_asl_token.
+    DATA lv_lexeme TYPE string.
 
     lo_range = zcl_bpc_asl_src_range=>create( iv_start_line   = 1
                                               iv_start_column = 1
                                               iv_end_line     = 1
                                               iv_end_column   = 10 ).
+    lv_lexeme = |  SCRIPT |. " 2 leading + 1 trailing space (9 chars)
     lo_token = zcl_bpc_asl_token=>create(
                  iv_kind   = zcl_bpc_asl_token_kind=>co_keyword
-                 iv_lexeme = '  SCRIPT '
+                 iv_lexeme = lv_lexeme
                  io_range  = lo_range
                  iv_value  = 'SCRIPT' ).
 
+    cl_abap_unit_assert=>assert_equals( act = strlen( lv_lexeme ) exp = 9 ).
     " The factory must not trim the original lexeme.
     cl_abap_unit_assert=>assert_equals( act = lo_token->get_lexeme( )
-                                        exp = '  SCRIPT ' ).
+                                        exp = |  SCRIPT | ).
+  ENDMETHOD.
+
+  METHOD preserves_trailing_space.
+    DATA lo_range  TYPE REF TO zcl_bpc_asl_src_range.
+    DATA lo_token  TYPE REF TO zcl_bpc_asl_token.
+    DATA lv_lexeme TYPE string.
+
+    lo_range = zcl_bpc_asl_src_range=>create( iv_start_line   = 1
+                                              iv_start_column = 1
+                                              iv_end_line     = 1
+                                              iv_end_column   = 8 ).
+    lv_lexeme = |SCRIPT |. " actual string fixture with one trailing space (7 chars)
+    lo_token = zcl_bpc_asl_token=>create(
+                 iv_kind   = zcl_bpc_asl_token_kind=>co_keyword
+                 iv_lexeme = lv_lexeme
+                 io_range  = lo_range
+                 iv_value  = 'SCRIPT' ).
+
+    cl_abap_unit_assert=>assert_equals( act = strlen( lv_lexeme ) exp = 7 ).
+    cl_abap_unit_assert=>assert_equals( act = lo_token->get_lexeme( )
+                                        exp = |SCRIPT | ).
+    cl_abap_unit_assert=>assert_equals( act = strlen( lo_token->get_lexeme( ) )
+                                        exp = 7 ).
   ENDMETHOD.
 
   METHOD preserves_unicode_lexeme.
