@@ -1,13 +1,14 @@
 " Source position in an ASL script (Phase 0 / Slice 1).
 "
-" Lines and columns are 1-based: the first character of the first line is
-" position (1,1). This matches the diagnostic envelope in SPECIFICATION.md
-" section 29, where line and column are reported 1-based.
+" Lines and columns are 1-based by the recommended convention: the first
+" character of the first line is position (1,1). SPECIFICATION.md section 29
+" shows 1-based-looking line/column values but does not formally state the base.
 "
-" The exact base (1 vs 0) is recorded as an open question (Q-012) because the
-" specification does not state it formally; this class implements the
-" recommended 1-based convention and is the single point that would change if
-" the answer differs.
+" The coordinate contract is not yet accepted. The exact base (1 vs 0), the
+" column counting unit, tab handling, line-ending (LF/CRLF) handling, and the
+" supplementary-character policy are recorded as open questions (Q-012) and are
+" provisional here. This class is the single point that would change if the
+" answer differs.
 "
 " Immutable by contract: construction is private, values are set once, and only
 " read access is exposed.

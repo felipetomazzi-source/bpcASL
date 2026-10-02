@@ -194,14 +194,17 @@ these decisions is yet implemented or validated on the target system.
 - Related requirements: ASL-OPS-001, ASL-API-005
 - Context: §31 requires diagnostics to carry a stable code but does not define a
   format or namespace.
-- Decision: Diagnostic codes are stable `UPPER_SNAKE_CASE` strings. The first
-  segment is a category prefix that reserves a namespace per compiler/runtime
-  layer: `LEX_` (lexical), `SYN_` (syntax), `SEM_` (semantic/binding/type),
-  `RUN_` (runtime/execution), and `SYS_` (adapter/infrastructure). Codes start
-  with a letter, are 2–60 characters, and contain at least one underscore. New
-  codes may be added; existing codes are never renamed or repurposed.
-- Consequences: The lexer, parser, and runtime share one code namespace; shape
-  validation is centralized in `ZCL_BPC_ASL_DIAG_CODE`.
+- Decision: Diagnostic codes are stable `UPPER_SNAKE_CASE` strings (start with a
+  letter, 2–60 characters, at least one underscore). A category-prefix naming
+  convention reserves the first segment per layer: `LEX_` (lexical), `SYN_`
+  (syntax), `SEM_` (semantic/binding/type), `RUN_` (runtime/execution), and
+  `SYS_` (adapter/infrastructure). New codes may be added; existing codes are
+  never renamed or repurposed.
+- Consequences: The lexer, parser, and runtime share one code namespace. The
+  `ZCL_BPC_ASL_DIAG_CODE` validator enforces shape only, not the prefix
+  allowlist, because §29's example code (`UNKNOWN_PROPERTY`) is unprefixed;
+  category ownership is enforced by convention and review rather than by
+  validation.
 
 ## Open Questions
 

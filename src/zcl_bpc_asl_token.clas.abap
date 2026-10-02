@@ -4,10 +4,13 @@
 "   - kind:             one of ZCL_BPC_ASL_TOKEN_KIND's constants;
 "   - lexeme:           the original source text, preserved for diagnostics and
 "                       formatting (never normalized or trimmed);
-"   - normalized value: optional; empty string means "absent". For KEYWORD and
-"                       IDENTIFIER it is the uppercase lexeme; for NUMBER it is a
-"                       canonical numeric text; for STRING it is the unescaped
-"                       content. Operators and punctuation carry no value.
+"   - normalized value: optional. Presence is tracked independently of content,
+"                       so an explicitly supplied empty string is a present empty
+"                       value (distinguishable from an omitted value). For KEYWORD
+"                       and IDENTIFIER it is the uppercase lexeme; for NUMBER it
+"                       is a canonical numeric text; for STRING it is the
+"                       unescaped content. Operators and punctuation carry no
+"                       value.
 "   - range:            the half-open source range [start, end).
 "
 " Immutable by contract: construction is private and only read access is
@@ -67,10 +70,11 @@ CLASS zcl_bpc_asl_token DEFINITION
         VALUE(rv_column) TYPE i.
 
   PRIVATE SECTION.
-    DATA mv_kind   TYPE string.
-    DATA mv_lexeme TYPE string.
-    DATA mv_value  TYPE string.
-    DATA mo_range  TYPE REF TO zcl_bpc_asl_src_range.
+    DATA mv_kind      TYPE string.
+    DATA mv_lexeme    TYPE string.
+    DATA mv_has_value TYPE abap_bool.
+    DATA mv_value     TYPE string.
+    DATA mo_range     TYPE REF TO zcl_bpc_asl_src_range.
 ENDCLASS.
 
 CLASS zcl_bpc_asl_token IMPLEMENTATION.
@@ -91,8 +95,13 @@ CLASS zcl_bpc_asl_token IMPLEMENTATION.
     CREATE OBJECT ro_token.
     ro_token->mv_kind   = iv_kind.
     ro_token->mv_lexeme = iv_lexeme.
-    ro_token->mv_value  = iv_value.
-    ro_token->mo_range  = io_range.
+    IF iv_value IS SUPPLIED.
+      ro_token->mv_has_value = abap_true.
+    ELSE.
+      ro_token->mv_has_value = abap_false.
+    ENDIF.
+    ro_token->mv_value = iv_value.
+    ro_token->mo_range = io_range.
   ENDMETHOD.
 
   METHOD get_kind.
@@ -104,11 +113,7 @@ CLASS zcl_bpc_asl_token IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD has_value.
-    IF mv_value IS NOT INITIAL.
-      rv_flag = abap_true.
-    ELSE.
-      rv_flag = abap_false.
-    ENDIF.
+    rv_flag = mv_has_value.
   ENDMETHOD.
 
   METHOD get_value.

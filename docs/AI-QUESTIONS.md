@@ -351,7 +351,7 @@ surfaced during extraction.
 - Work blocked:
   Creating production ABAP/BSP/ICF objects and the authorization object.
 
-## Q-012 — Source position indexing and range end-exclusivity
+## Q-012 — Source coordinate contract (base, end, column unit, tabs, line endings, Unicode)
 
 - Status: Open
 - Raised by: DeepSeek
@@ -360,35 +360,48 @@ surfaced during extraction.
 - Blocking: Yes
 - Context:
   SPECIFICATION.md §29 shows a diagnostic envelope with 1-based-looking
-  `line`/`column` and a `length`, but it never states formally whether line and
-  column are 0-based or 1-based, nor whether a source range's end position is
-  inclusive or exclusive. Phase 0 Slice 1 introduces the source-position and
-  source-range value objects that the lexer, parser, and formatter will all rely
-  on, so these semantics must be agreed before those later slices finalize.
+  `line`/`column` and a `length`, but it does not formally state whether line
+  and column are 0-based or 1-based, whether a source range's end position is
+  inclusive or exclusive, what unit a column counts, how tabs and line endings
+  are handled, or the supported Unicode input policy. Phase 0 Slice 1 introduces
+  the source-position and source-range value objects that the lexer, parser,
+  formatter, editor, and HTTP serializer will all rely on, so these semantics
+  must be agreed before those later slices finalize.
 
 - Question:
-  Are line/column positions 1-based or 0-based, and is a source range's end
-  position inclusive or exclusive?
+  1. Are line/column positions 1-based or 0-based, and is a range's end
+     inclusive or exclusive?
+  2. What is the column counting unit?
+  3. How is a tab counted in a column?
+  4. How are LF/CRLF line endings handled?
+  5. What is the supplementary/combining character policy?
 
 - Options considered:
-  1. 1-based line/column with a half-open `[start, end)` range.
-  2. 0-based line/column with a half-open range.
-  3. 1-based with an end-inclusive range.
-  4. Start position plus character length (no end position), mirroring §29's
-     `length` field directly.
+  1. Base/end: 1-based + half-open `[start, end)` (recommended); 0-based +
+     half-open; 1-based + end-inclusive; start + `length` (mirrors §29).
+  2. Column unit: ABAP string characters (UTF-16 code units, `STRLEN`) vs
+     Unicode scalar values vs display cells (recommended: ABAP string
+     characters, the cheapest correct-enough unit on 7.52).
+  3. Tabs: one column per tab (recommended) vs tab-stop expansion (editor
+     dependent and not reproducible in ABAP without a tab-width policy).
+  4. Line endings: normalize CRLF/CR to LF before positions are computed
+     (recommended), or preserve CRLF (a CR then counts as a column).
+  5. Unicode: treat supplementary characters (surrogate pairs) as two columns
+     per ABAP `STRLEN` (recommended, consistent with the unit choice) vs one
+     scalar per character (requires scalar iteration not native to 7.52).
 
 - DeepSeek recommendation:
-  Use 1-based line/column with a half-open `[start, end)` range. This matches
-  the §29 example (`line: 18, column: 24`) and the convention used by editors
-  and the Language Server Protocol; the single-line `length` in §29 is derived
-  at serialization time as `end_column - start_column`.
+  1-based line/column, half-open `[start, end)`; column unit = ABAP string
+  character (`STRLEN`); tab = one column (no expansion); normalize line endings
+  to LF before positioning; supplementary characters count as two columns per
+  ABAP string semantics. These match §29's example, editor/LSP convention, and
+  what ABAP 7.52 can compute cheaply.
 
 - Work that can continue:
-  All value-object work in this slice. The lexer and parser can be scaffolded
-  against the recommended convention and adjusted trivially if the answer
-  differs.
+  All value-object work in this slice. The classes implement the recommended
+  convention and are the single point of change if the answer differs.
 
 - Work blocked:
-  Finalizing the position base and end-exclusivity contract across the lexer,
-  parser, and formatter, and agreeing how `length` is derived for the §29
-  envelope.
+  Finalizing the coordinate contract across the lexer, parser, formatter,
+  editor, and HTTP serializer; agreeing how `length` is derived for §29; any
+  behavior that depends on tab/CRLF/Unicode column semantics.

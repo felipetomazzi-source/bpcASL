@@ -4,10 +4,9 @@
 " and the end position is excluded. A zero-width range has start = end.
 " The start/end ordering is compared by line first, then column.
 "
-" End-exclusivity is recorded as an open question (Q-012) because the
-" specification does not state it formally; this class implements the
-" recommended half-open convention and is the single point that would change if
-" the answer differs.
+" The coordinate contract is not yet accepted. End-exclusivity and the column
+" counting unit are recorded as open questions (Q-012) and are provisional here.
+" This class is the single point that would change if the answer differs.
 "
 " Immutable by contract: construction is private and only read access is
 " exposed.
