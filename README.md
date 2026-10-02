@@ -1,8 +1,10 @@
-# BPC Advanced Script Language
+# bpcASL
 
-BPC Advanced Script Language (ASL) is a proposed SAP BPC Standard calculation
+bpcASL (BPC Advanced Script Language) is a proposed SAP BPC Standard calculation
 application. It combines a consultant-friendly calculation language with a
 governed ABAP runtime built on standard SAP BPC and BW APIs.
+
+GitHub repository: <https://github.com/felipetomazzi-source/bpcASL>
 
 The detailed product and technical specification is in
 [docs/SPECIFICATION.md](docs/SPECIFICATION.md).

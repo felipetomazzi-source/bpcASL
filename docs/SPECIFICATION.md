@@ -1,11 +1,12 @@
-# BPC Advanced Script Language
+# bpcASL
 
 ## Product and Technical Specification
 
 | Field | Value |
 | --- | --- |
-| Product | BPC Advanced Script Language (ASL) |
-| Repository/package | `ZBPC_ASL` |
+| Product | bpcASL (BPC Advanced Script Language) |
+| GitHub repository | `felipetomazzi-source/bpcASL` |
+| SAP package | `ZBPC_ASL` |
 | Target platform | SAP BPC 10.1 Standard on SAP NetWeaver 7.52 |
 | Front end | SAPUI5 1.52 BSP application |
 | Status | Proposed specification |
