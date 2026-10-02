@@ -201,6 +201,12 @@ CLASS ltcl_token IMPLEMENTATION.
     " The factory must not trim the original lexeme.
     cl_abap_unit_assert=>assert_equals( act = lo_token->get_lexeme( )
                                         exp = |  SCRIPT | ).
+    " The final character must remain the trailing space.
+    cl_abap_unit_assert=>assert_equals(
+      act = substring( val = lo_token->get_lexeme( )
+                       off = strlen( lo_token->get_lexeme( ) ) - 1
+                       len = 1 )
+      exp = ' ' ).
   ENDMETHOD.
 
   METHOD preserves_trailing_space.
@@ -224,6 +230,12 @@ CLASS ltcl_token IMPLEMENTATION.
                                         exp = |SCRIPT | ).
     cl_abap_unit_assert=>assert_equals( act = strlen( lo_token->get_lexeme( ) )
                                         exp = 7 ).
+    " The final character must remain the trailing space.
+    cl_abap_unit_assert=>assert_equals(
+      act = substring( val = lo_token->get_lexeme( )
+                       off = strlen( lo_token->get_lexeme( ) ) - 1
+                       len = 1 )
+      exp = ' ' ).
   ENDMETHOD.
 
   METHOD preserves_unicode_lexeme.
