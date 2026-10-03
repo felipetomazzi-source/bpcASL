@@ -190,3 +190,37 @@ syntax checks, activations or test executions occurred. The user screenshot's
 zero-test result is not accepted as a passing suite. SAP XML refresh and all 45
 ABAP Unit methods still require validation; do not infer that line endings alone
 explain the discovery failure. bpcIO remains unchanged and clean.
+
+## Follow-up review — VERSION metadata correction (2026-10-03)
+
+- Reviewed commit: `b9811ce681ac18c508d20058c9c3d29525bd6851` on
+  `feature/asl-001-token-diagnostics`, parent `1387d76`.
+- Verdict: APPROVED for the local serialization-only correction. Actual SAP
+  export/round-trip confirmation is pending; this is not a claim of a clean
+  SAP comparison for all seven objects.
+- Independently inspected complete commit diff: seven class XML files each
+  delete only `<VERSION>1</VERSION>`. No source/test changes or unrelated edits.
+- Checks executed: XML parse, filename/CLSNAME consistency, WITH_UNIT_TESTS=X
+  in all seven files; worktree checker (23 files, zero violations); independent
+  HEAD blob strict UTF-8/BOM/LF/final-newline checks (23 passed);
+  `git diff --check 1387d76 b9811ce` passed. bpcIO status remains clean.
+- Actual export: Not obtained. Available ADT tools expose no abapGit export
+  operation. A read-only getObjectSource request for
+  ZCL_ABAPGIT_OBJECT_CLAS failed and returned no usable source. No source or
+  export claim from the implementation agent is treated as independent proof.
+  The user's SAP DIAG diff does independently show omission of VERSION for
+  that class only. Refresh/export all seven classes to confirm exact equality.
+- ABAP Unit: User-provided later screenshot says completed with 0 errors
+  (8 objects, 0.05 seconds). This supersedes treating the earlier zero-discovery
+  screen as the latest known result. The screenshot does not expose all 45
+  methods or identify the eighth object. No new run or reproduction was
+  performed by Codex. Active includes, even if confirmed, would not alone
+  prove the historical discovery failure's cause; stale scope/state remains
+  a hypothesis, not an established diagnosis.
+- No SAP write, activation, syntax check, ABAP Unit execution or integration
+  operation was performed in this follow-up. Slice 2 and BSP remain excluded.
+
+Next: confirm b9811ce is pushed, refresh the seven objects in SAP and inspect
+any remaining differences. Obtain the full successful test list/count if
+recording all 45 methods as passed. Investigate discovery only if a fresh run
+reproduces it; do not repeat fixes for an unreproduced historical result.
