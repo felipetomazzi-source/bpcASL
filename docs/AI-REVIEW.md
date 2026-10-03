@@ -172,3 +172,21 @@ Only `docs/AI-REVIEW.md` is updated and committed locally. Pre-existing untracke
 - Verification required: Pure-function cases for CR-only and mixed line endings, plus revalidation of repaired bytes. The reviewer executed an in-memory A/CR/B case through Fix-Bytes and Get-Violations and reproduced `non-CRLF line ending`; no repository fixture or source was changed.
 
 Next action: push/pull these corrected implementation commits through the authorized workflow and rerun all 45 tests in SAP. Record actual discovery, failure and execution results before marking SAP validation complete. OpenCode may address REVIEW-006 separately; no further production-code correction is established by this follow-up.
+## Serialization correction after SAP round-trip evidence
+
+The prior CRLF approval was incorrect for the installed serializer. Read-only ADT
+searchObject located ZCL_ABAPGIT_OBJECTS_FILES; getObjectSource read that class,
+ZCL_ABAPGIT_CONVERT, ZCL_ABAPGIT_DOT_ABAPGIT and ZCL_ABAPGIT_XML. ABAP uses LF
+plus one final newline without BOM; metadata explicitly uses a BOM. XML rendering
+is delegated to iXML and was not executed. XML LF restoration requires SAP
+round-trip confirmation, as documented in ABAPGIT-SERIALIZATION.md.
+
+Repository ABAP/XML line endings were converted to LF with existing BOM policies
+preserved. Normalized source/XML contents are unchanged. The checker now uses
+strict UTF-8 decoding and revalidates repairs; eight in-memory empty/LF/CR/CRLF
+cases with both BOM policies passed, including idempotence. REVIEW-006 is Resolved.
+Working-file byte checks (23 files) and git diff --check passed. No SAP changes,
+syntax checks, activations or test executions occurred. The user screenshot's
+zero-test result is not accepted as a passing suite. SAP XML refresh and all 45
+ABAP Unit methods still require validation; do not infer that line endings alone
+explain the discovery failure. bpcIO remains unchanged and clean.

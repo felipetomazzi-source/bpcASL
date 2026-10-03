@@ -1,6 +1,6 @@
 # abapGit serialization: preserve exact bytes.
 # XML metadata is UTF-8 WITH BOM; ABAP source/test is UTF-8 WITHOUT BOM.
-# Both use CRLF line endings and exactly one final CRLF.
+# Both use LF line endings and exactly one final LF for this SAP installation.
 # Disable line-ending normalization so committed blobs match abapGit output.
 *.abap -text
 *.xml  -text

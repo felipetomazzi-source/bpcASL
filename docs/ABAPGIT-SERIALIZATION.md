@@ -1,26 +1,30 @@
 # abapGit serialization conventions
 
-This repository stores abapGit objects with the following byte-level conventions,
-matching abapGit's own serialization output:
+Use UTF-8 with BOM for object metadata XML and `.abapgit.xml`;
+use UTF-8 without BOM for ABAP main and test source. Preserve LF endings and
+one final LF. `.gitattributes` disables normalization so Git retains these bytes.
 
-| File kind | Encoding | BOM | Line endings | Final newline |
-| --- | --- | --- | --- | --- |
-| Metadata XML (`*.xml`) | UTF-8 | **with** BOM (`EF BB BF`) | CRLF | exactly one final CRLF |
-| ABAP source/test (`*.abap`) | UTF-8 | **without** BOM | CRLF | exactly one final CRLF |
+The previous blanket CRLF convention copied from bpcIO was not established
+for this installation and caused whole-file differences. bpcIO remains unchanged.
 
-These conventions are enforced by `.gitattributes` (`-text` for `*.abap` and
-`*.xml`), which disables Git line-ending normalization so the committed blobs
-preserve the exact bytes (BOM + CRLF). Without this, `core.autocrlf` would
-normalize CRLF to LF on `git add`, silently undoing the convention.
+On 2026-10-02, read-only ADT inspection of the installed serializer established:
 
-## Check
+- `ZCL_ABAPGIT_OBJECTS_FILES->ADD_ABAP` joins lines with
+  `CL_ABAP_CHAR_UTILITIES=>NEWLINE`, appends one newline, then converts to UTF-8
+  without adding a BOM.
+- `ADD_XML`, `ZCL_ABAPGIT_DOT_ABAPGIT->SERIALIZE`, and
+  `ZCL_ABAPGIT_CONVERT=>STRING_TO_XSTRING_UTF8_BOM` explicitly add an XML BOM.
+- `ZCL_ABAPGIT_XML->TO_XML` uses the normalized iXML renderer. Its raw output
+  was not executed/exported by this task. Restoring XML LF is based on the
+  whole-file SAP diff after CRLF conversion; confirm with an SAP refresh.
 
-A repeatable byte-level check is provided:
+No SAP write, activation, syntax check or ABAP Unit operation was performed.
+Source inspection is not a successful round-trip test. If XML differences remain,
+compare a raw export from the installed abapGit before making further changes.
 
-```powershell
-pwsh tools/check-abapgit-bytes.ps1        # verify (exit 1 on violations)
-pwsh tools/check-abapgit-bytes.ps1 -Fix   # correct in place (idempotent)
-```
-
-The check verifies, per file: the BOM presence/absence, CRLF-only line endings,
-and exactly one final CRLF (no trailing blank line).
+Run `powershell -NoProfile -File tools/check-abapgit-bytes.ps1` to check current
+files. Add `-Fix` to repair them. The helper strictly validates UTF-8, BOM rules,
+LF endings and the final newline, and revalidates repairs before writing.
+It covers `.abapgit.xml` and ABAP/XML under `src`, not future BSP content formats.
+Check staged/committed Git blobs separately; a working-file check does not prove
+what was committed.
